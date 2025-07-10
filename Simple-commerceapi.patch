@@ -1,0 +1,1505 @@
+diff --git a/.gitattributes b/.gitattributes
+new file mode 100644
+index 0000000..3b41682
+--- /dev/null
++++ b/.gitattributes
+@@ -0,0 +1,2 @@
++/mvnw text eol=lf
++*.cmd text eol=crlf
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..667aaef
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,33 @@
++HELP.md
++target/
++.mvn/wrapper/maven-wrapper.jar
++!**/src/main/**/target/
++!**/src/test/**/target/
++
++### STS ###
++.apt_generated
++.classpath
++.factorypath
++.project
++.settings
++.springBeans
++.sts4-cache
++
++### IntelliJ IDEA ###
++.idea
++*.iws
++*.iml
++*.ipr
++
++### NetBeans ###
++/nbproject/private/
++/nbbuild/
++/dist/
++/nbdist/
++/.nb-gradle/
++build/
++!**/src/main/**/build/
++!**/src/test/**/build/
++
++### VS Code ###
++.vscode/
+diff --git a/.mvn/wrapper/maven-wrapper.properties b/.mvn/wrapper/maven-wrapper.properties
+new file mode 100644
+index 0000000..2f94e61
+--- /dev/null
++++ b/.mvn/wrapper/maven-wrapper.properties
+@@ -0,0 +1,19 @@
++# Licensed to the Apache Software Foundation (ASF) under one
++# or more contributor license agreements.  See the NOTICE file
++# distributed with this work for additional information
++# regarding copyright ownership.  The ASF licenses this file
++# to you under the Apache License, Version 2.0 (the
++# "License"); you may not use this file except in compliance
++# with the License.  You may obtain a copy of the License at
++#
++#   http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing,
++# software distributed under the License is distributed on an
++# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
++# KIND, either express or implied.  See the License for the
++# specific language governing permissions and limitations
++# under the License.
++wrapperVersion=3.3.2
++distributionType=only-script
++distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.10/apache-maven-3.9.10-bin.zip
+diff --git a/mvnw b/mvnw
+new file mode 100644
+index 0000000..19529dd
+--- /dev/null
++++ b/mvnw
+@@ -0,0 +1,259 @@
++#!/bin/sh
++# ----------------------------------------------------------------------------
++# Licensed to the Apache Software Foundation (ASF) under one
++# or more contributor license agreements.  See the NOTICE file
++# distributed with this work for additional information
++# regarding copyright ownership.  The ASF licenses this file
++# to you under the Apache License, Version 2.0 (the
++# "License"); you may not use this file except in compliance
++# with the License.  You may obtain a copy of the License at
++#
++#    http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing,
++# software distributed under the License is distributed on an
++# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
++# KIND, either express or implied.  See the License for the
++# specific language governing permissions and limitations
++# under the License.
++# ----------------------------------------------------------------------------
++
++# ----------------------------------------------------------------------------
++# Apache Maven Wrapper startup batch script, version 3.3.2
++#
++# Optional ENV vars
++# -----------------
++#   JAVA_HOME - location of a JDK home dir, required when download maven via java source
++#   MVNW_REPOURL - repo url base for downloading maven distribution
++#   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
++#   MVNW_VERBOSE - true: enable verbose log; debug: trace the mvnw script; others: silence the output
++# ----------------------------------------------------------------------------
++
++set -euf
++[ "${MVNW_VERBOSE-}" != debug ] || set -x
++
++# OS specific support.
++native_path() { printf %s\\n "$1"; }
++case "$(uname)" in
++CYGWIN* | MINGW*)
++  [ -z "${JAVA_HOME-}" ] || JAVA_HOME="$(cygpath --unix "$JAVA_HOME")"
++  native_path() { cygpath --path --windows "$1"; }
++  ;;
++esac
++
++# set JAVACMD and JAVACCMD
++set_java_home() {
++  # For Cygwin and MinGW, ensure paths are in Unix format before anything is touched
++  if [ -n "${JAVA_HOME-}" ]; then
++    if [ -x "$JAVA_HOME/jre/sh/java" ]; then
++      # IBM's JDK on AIX uses strange locations for the executables
++      JAVACMD="$JAVA_HOME/jre/sh/java"
++      JAVACCMD="$JAVA_HOME/jre/sh/javac"
++    else
++      JAVACMD="$JAVA_HOME/bin/java"
++      JAVACCMD="$JAVA_HOME/bin/javac"
++
++      if [ ! -x "$JAVACMD" ] || [ ! -x "$JAVACCMD" ]; then
++        echo "The JAVA_HOME environment variable is not defined correctly, so mvnw cannot run." >&2
++        echo "JAVA_HOME is set to \"$JAVA_HOME\", but \"\$JAVA_HOME/bin/java\" or \"\$JAVA_HOME/bin/javac\" does not exist." >&2
++        return 1
++      fi
++    fi
++  else
++    JAVACMD="$(
++      'set' +e
++      'unset' -f command 2>/dev/null
++      'command' -v java
++    )" || :
++    JAVACCMD="$(
++      'set' +e
++      'unset' -f command 2>/dev/null
++      'command' -v javac
++    )" || :
++
++    if [ ! -x "${JAVACMD-}" ] || [ ! -x "${JAVACCMD-}" ]; then
++      echo "The java/javac command does not exist in PATH nor is JAVA_HOME set, so mvnw cannot run." >&2
++      return 1
++    fi
++  fi
++}
++
++# hash string like Java String::hashCode
++hash_string() {
++  str="${1:-}" h=0
++  while [ -n "$str" ]; do
++    char="${str%"${str#?}"}"
++    h=$(((h * 31 + $(LC_CTYPE=C printf %d "'$char")) % 4294967296))
++    str="${str#?}"
++  done
++  printf %x\\n $h
++}
++
++verbose() { :; }
++[ "${MVNW_VERBOSE-}" != true ] || verbose() { printf %s\\n "${1-}"; }
++
++die() {
++  printf %s\\n "$1" >&2
++  exit 1
++}
++
++trim() {
++  # MWRAPPER-139:
++  #   Trims trailing and leading whitespace, carriage returns, tabs, and linefeeds.
++  #   Needed for removing poorly interpreted newline sequences when running in more
++  #   exotic environments such as mingw bash on Windows.
++  printf "%s" "${1}" | tr -d '[:space:]'
++}
++
++# parse distributionUrl and optional distributionSha256Sum, requires .mvn/wrapper/maven-wrapper.properties
++while IFS="=" read -r key value; do
++  case "${key-}" in
++  distributionUrl) distributionUrl=$(trim "${value-}") ;;
++  distributionSha256Sum) distributionSha256Sum=$(trim "${value-}") ;;
++  esac
++done <"${0%/*}/.mvn/wrapper/maven-wrapper.properties"
++[ -n "${distributionUrl-}" ] || die "cannot read distributionUrl property in ${0%/*}/.mvn/wrapper/maven-wrapper.properties"
++
++case "${distributionUrl##*/}" in
++maven-mvnd-*bin.*)
++  MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/
++  case "${PROCESSOR_ARCHITECTURE-}${PROCESSOR_ARCHITEW6432-}:$(uname -a)" in
++  *AMD64:CYGWIN* | *AMD64:MINGW*) distributionPlatform=windows-amd64 ;;
++  :Darwin*x86_64) distributionPlatform=darwin-amd64 ;;
++  :Darwin*arm64) distributionPlatform=darwin-aarch64 ;;
++  :Linux*x86_64*) distributionPlatform=linux-amd64 ;;
++  *)
++    echo "Cannot detect native platform for mvnd on $(uname)-$(uname -m), use pure java version" >&2
++    distributionPlatform=linux-amd64
++    ;;
++  esac
++  distributionUrl="${distributionUrl%-bin.*}-$distributionPlatform.zip"
++  ;;
++maven-mvnd-*) MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/ ;;
++*) MVN_CMD="mvn${0##*/mvnw}" _MVNW_REPO_PATTERN=/org/apache/maven/ ;;
++esac
++
++# apply MVNW_REPOURL and calculate MAVEN_HOME
++# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
++[ -z "${MVNW_REPOURL-}" ] || distributionUrl="$MVNW_REPOURL$_MVNW_REPO_PATTERN${distributionUrl#*"$_MVNW_REPO_PATTERN"}"
++distributionUrlName="${distributionUrl##*/}"
++distributionUrlNameMain="${distributionUrlName%.*}"
++distributionUrlNameMain="${distributionUrlNameMain%-bin}"
++MAVEN_USER_HOME="${MAVEN_USER_HOME:-${HOME}/.m2}"
++MAVEN_HOME="${MAVEN_USER_HOME}/wrapper/dists/${distributionUrlNameMain-}/$(hash_string "$distributionUrl")"
++
++exec_maven() {
++  unset MVNW_VERBOSE MVNW_USERNAME MVNW_PASSWORD MVNW_REPOURL || :
++  exec "$MAVEN_HOME/bin/$MVN_CMD" "$@" || die "cannot exec $MAVEN_HOME/bin/$MVN_CMD"
++}
++
++if [ -d "$MAVEN_HOME" ]; then
++  verbose "found existing MAVEN_HOME at $MAVEN_HOME"
++  exec_maven "$@"
++fi
++
++case "${distributionUrl-}" in
++*?-bin.zip | *?maven-mvnd-?*-?*.zip) ;;
++*) die "distributionUrl is not valid, must match *-bin.zip or maven-mvnd-*.zip, but found '${distributionUrl-}'" ;;
++esac
++
++# prepare tmp dir
++if TMP_DOWNLOAD_DIR="$(mktemp -d)" && [ -d "$TMP_DOWNLOAD_DIR" ]; then
++  clean() { rm -rf -- "$TMP_DOWNLOAD_DIR"; }
++  trap clean HUP INT TERM EXIT
++else
++  die "cannot create temp dir"
++fi
++
++mkdir -p -- "${MAVEN_HOME%/*}"
++
++# Download and Install Apache Maven
++verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
++verbose "Downloading from: $distributionUrl"
++verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
++
++# select .zip or .tar.gz
++if ! command -v unzip >/dev/null; then
++  distributionUrl="${distributionUrl%.zip}.tar.gz"
++  distributionUrlName="${distributionUrl##*/}"
++fi
++
++# verbose opt
++__MVNW_QUIET_WGET=--quiet __MVNW_QUIET_CURL=--silent __MVNW_QUIET_UNZIP=-q __MVNW_QUIET_TAR=''
++[ "${MVNW_VERBOSE-}" != true ] || __MVNW_QUIET_WGET='' __MVNW_QUIET_CURL='' __MVNW_QUIET_UNZIP='' __MVNW_QUIET_TAR=v
++
++# normalize http auth
++case "${MVNW_PASSWORD:+has-password}" in
++'') MVNW_USERNAME='' MVNW_PASSWORD='' ;;
++has-password) [ -n "${MVNW_USERNAME-}" ] || MVNW_USERNAME='' MVNW_PASSWORD='' ;;
++esac
++
++if [ -z "${MVNW_USERNAME-}" ] && command -v wget >/dev/null; then
++  verbose "Found wget ... using wget"
++  wget ${__MVNW_QUIET_WGET:+"$__MVNW_QUIET_WGET"} "$distributionUrl" -O "$TMP_DOWNLOAD_DIR/$distributionUrlName" || die "wget: Failed to fetch $distributionUrl"
++elif [ -z "${MVNW_USERNAME-}" ] && command -v curl >/dev/null; then
++  verbose "Found curl ... using curl"
++  curl ${__MVNW_QUIET_CURL:+"$__MVNW_QUIET_CURL"} -f -L -o "$TMP_DOWNLOAD_DIR/$distributionUrlName" "$distributionUrl" || die "curl: Failed to fetch $distributionUrl"
++elif set_java_home; then
++  verbose "Falling back to use Java to download"
++  javaSource="$TMP_DOWNLOAD_DIR/Downloader.java"
++  targetZip="$TMP_DOWNLOAD_DIR/$distributionUrlName"
++  cat >"$javaSource" <<-END
++	public class Downloader extends java.net.Authenticator
++	{
++	  protected java.net.PasswordAuthentication getPasswordAuthentication()
++	  {
++	    return new java.net.PasswordAuthentication( System.getenv( "MVNW_USERNAME" ), System.getenv( "MVNW_PASSWORD" ).toCharArray() );
++	  }
++	  public static void main( String[] args ) throws Exception
++	  {
++	    setDefault( new Downloader() );
++	    java.nio.file.Files.copy( java.net.URI.create( args[0] ).toURL().openStream(), java.nio.file.Paths.get( args[1] ).toAbsolutePath().normalize() );
++	  }
++	}
++	END
++  # For Cygwin/MinGW, switch paths to Windows format before running javac and java
++  verbose " - Compiling Downloader.java ..."
++  "$(native_path "$JAVACCMD")" "$(native_path "$javaSource")" || die "Failed to compile Downloader.java"
++  verbose " - Running Downloader.java ..."
++  "$(native_path "$JAVACMD")" -cp "$(native_path "$TMP_DOWNLOAD_DIR")" Downloader "$distributionUrl" "$(native_path "$targetZip")"
++fi
++
++# If specified, validate the SHA-256 sum of the Maven distribution zip file
++if [ -n "${distributionSha256Sum-}" ]; then
++  distributionSha256Result=false
++  if [ "$MVN_CMD" = mvnd.sh ]; then
++    echo "Checksum validation is not supported for maven-mvnd." >&2
++    echo "Please disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties." >&2
++    exit 1
++  elif command -v sha256sum >/dev/null; then
++    if echo "$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName" | sha256sum -c >/dev/null 2>&1; then
++      distributionSha256Result=true
++    fi
++  elif command -v shasum >/dev/null; then
++    if echo "$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName" | shasum -a 256 -c >/dev/null 2>&1; then
++      distributionSha256Result=true
++    fi
++  else
++    echo "Checksum validation was requested but neither 'sha256sum' or 'shasum' are available." >&2
++    echo "Please install either command, or disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties." >&2
++    exit 1
++  fi
++  if [ $distributionSha256Result = false ]; then
++    echo "Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised." >&2
++    echo "If you updated your Maven version, you need to update the specified distributionSha256Sum property." >&2
++    exit 1
++  fi
++fi
++
++# unzip and move
++if command -v unzip >/dev/null; then
++  unzip ${__MVNW_QUIET_UNZIP:+"$__MVNW_QUIET_UNZIP"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -d "$TMP_DOWNLOAD_DIR" || die "failed to unzip"
++else
++  tar xzf${__MVNW_QUIET_TAR:+"$__MVNW_QUIET_TAR"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -C "$TMP_DOWNLOAD_DIR" || die "failed to untar"
++fi
++printf %s\\n "$distributionUrl" >"$TMP_DOWNLOAD_DIR/$distributionUrlNameMain/mvnw.url"
++mv -- "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain" "$MAVEN_HOME" || [ -d "$MAVEN_HOME" ] || die "fail to move MAVEN_HOME"
++
++clean || :
++exec_maven "$@"
+diff --git a/mvnw.cmd b/mvnw.cmd
+new file mode 100644
+index 0000000..249bdf3
+--- /dev/null
++++ b/mvnw.cmd
+@@ -0,0 +1,149 @@
++<# : batch portion
++@REM ----------------------------------------------------------------------------
++@REM Licensed to the Apache Software Foundation (ASF) under one
++@REM or more contributor license agreements.  See the NOTICE file
++@REM distributed with this work for additional information
++@REM regarding copyright ownership.  The ASF licenses this file
++@REM to you under the Apache License, Version 2.0 (the
++@REM "License"); you may not use this file except in compliance
++@REM with the License.  You may obtain a copy of the License at
++@REM
++@REM    http://www.apache.org/licenses/LICENSE-2.0
++@REM
++@REM Unless required by applicable law or agreed to in writing,
++@REM software distributed under the License is distributed on an
++@REM "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
++@REM KIND, either express or implied.  See the License for the
++@REM specific language governing permissions and limitations
++@REM under the License.
++@REM ----------------------------------------------------------------------------
++
++@REM ----------------------------------------------------------------------------
++@REM Apache Maven Wrapper startup batch script, version 3.3.2
++@REM
++@REM Optional ENV vars
++@REM   MVNW_REPOURL - repo url base for downloading maven distribution
++@REM   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
++@REM   MVNW_VERBOSE - true: enable verbose log; others: silence the output
++@REM ----------------------------------------------------------------------------
++
++@IF "%__MVNW_ARG0_NAME__%"=="" (SET __MVNW_ARG0_NAME__=%~nx0)
++@SET __MVNW_CMD__=
++@SET __MVNW_ERROR__=
++@SET __MVNW_PSMODULEP_SAVE=%PSModulePath%
++@SET PSModulePath=
++@FOR /F "usebackq tokens=1* delims==" %%A IN (`powershell -noprofile "& {$scriptDir='%~dp0'; $script='%__MVNW_ARG0_NAME__%'; icm -ScriptBlock ([Scriptblock]::Create((Get-Content -Raw '%~f0'))) -NoNewScope}"`) DO @(
++  IF "%%A"=="MVN_CMD" (set __MVNW_CMD__=%%B) ELSE IF "%%B"=="" (echo %%A) ELSE (echo %%A=%%B)
++)
++@SET PSModulePath=%__MVNW_PSMODULEP_SAVE%
++@SET __MVNW_PSMODULEP_SAVE=
++@SET __MVNW_ARG0_NAME__=
++@SET MVNW_USERNAME=
++@SET MVNW_PASSWORD=
++@IF NOT "%__MVNW_CMD__%"=="" (%__MVNW_CMD__% %*)
++@echo Cannot start maven from wrapper >&2 && exit /b 1
++@GOTO :EOF
++: end batch / begin powershell #>
++
++$ErrorActionPreference = "Stop"
++if ($env:MVNW_VERBOSE -eq "true") {
++  $VerbosePreference = "Continue"
++}
++
++# calculate distributionUrl, requires .mvn/wrapper/maven-wrapper.properties
++$distributionUrl = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionUrl
++if (!$distributionUrl) {
++  Write-Error "cannot read distributionUrl property in $scriptDir/.mvn/wrapper/maven-wrapper.properties"
++}
++
++switch -wildcard -casesensitive ( $($distributionUrl -replace '^.*/','') ) {
++  "maven-mvnd-*" {
++    $USE_MVND = $true
++    $distributionUrl = $distributionUrl -replace '-bin\.[^.]*$',"-windows-amd64.zip"
++    $MVN_CMD = "mvnd.cmd"
++    break
++  }
++  default {
++    $USE_MVND = $false
++    $MVN_CMD = $script -replace '^mvnw','mvn'
++    break
++  }
++}
++
++# apply MVNW_REPOURL and calculate MAVEN_HOME
++# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
++if ($env:MVNW_REPOURL) {
++  $MVNW_REPO_PATTERN = if ($USE_MVND) { "/org/apache/maven/" } else { "/maven/mvnd/" }
++  $distributionUrl = "$env:MVNW_REPOURL$MVNW_REPO_PATTERN$($distributionUrl -replace '^.*'+$MVNW_REPO_PATTERN,'')"
++}
++$distributionUrlName = $distributionUrl -replace '^.*/',''
++$distributionUrlNameMain = $distributionUrlName -replace '\.[^.]*$','' -replace '-bin$',''
++$MAVEN_HOME_PARENT = "$HOME/.m2/wrapper/dists/$distributionUrlNameMain"
++if ($env:MAVEN_USER_HOME) {
++  $MAVEN_HOME_PARENT = "$env:MAVEN_USER_HOME/wrapper/dists/$distributionUrlNameMain"
++}
++$MAVEN_HOME_NAME = ([System.Security.Cryptography.MD5]::Create().ComputeHash([byte[]][char[]]$distributionUrl) | ForEach-Object {$_.ToString("x2")}) -join ''
++$MAVEN_HOME = "$MAVEN_HOME_PARENT/$MAVEN_HOME_NAME"
++
++if (Test-Path -Path "$MAVEN_HOME" -PathType Container) {
++  Write-Verbose "found existing MAVEN_HOME at $MAVEN_HOME"
++  Write-Output "MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD"
++  exit $?
++}
++
++if (! $distributionUrlNameMain -or ($distributionUrlName -eq $distributionUrlNameMain)) {
++  Write-Error "distributionUrl is not valid, must end with *-bin.zip, but found $distributionUrl"
++}
++
++# prepare tmp dir
++$TMP_DOWNLOAD_DIR_HOLDER = New-TemporaryFile
++$TMP_DOWNLOAD_DIR = New-Item -Itemtype Directory -Path "$TMP_DOWNLOAD_DIR_HOLDER.dir"
++$TMP_DOWNLOAD_DIR_HOLDER.Delete() | Out-Null
++trap {
++  if ($TMP_DOWNLOAD_DIR.Exists) {
++    try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }
++    catch { Write-Warning "Cannot remove $TMP_DOWNLOAD_DIR" }
++  }
++}
++
++New-Item -Itemtype Directory -Path "$MAVEN_HOME_PARENT" -Force | Out-Null
++
++# Download and Install Apache Maven
++Write-Verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
++Write-Verbose "Downloading from: $distributionUrl"
++Write-Verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
++
++$webclient = New-Object System.Net.WebClient
++if ($env:MVNW_USERNAME -and $env:MVNW_PASSWORD) {
++  $webclient.Credentials = New-Object System.Net.NetworkCredential($env:MVNW_USERNAME, $env:MVNW_PASSWORD)
++}
++[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
++$webclient.DownloadFile($distributionUrl, "$TMP_DOWNLOAD_DIR/$distributionUrlName") | Out-Null
++
++# If specified, validate the SHA-256 sum of the Maven distribution zip file
++$distributionSha256Sum = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionSha256Sum
++if ($distributionSha256Sum) {
++  if ($USE_MVND) {
++    Write-Error "Checksum validation is not supported for maven-mvnd. `nPlease disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties."
++  }
++  Import-Module $PSHOME\Modules\Microsoft.PowerShell.Utility -Function Get-FileHash
++  if ((Get-FileHash "$TMP_DOWNLOAD_DIR/$distributionUrlName" -Algorithm SHA256).Hash.ToLower() -ne $distributionSha256Sum) {
++    Write-Error "Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised. If you updated your Maven version, you need to update the specified distributionSha256Sum property."
++  }
++}
++
++# unzip and move
++Expand-Archive "$TMP_DOWNLOAD_DIR/$distributionUrlName" -DestinationPath "$TMP_DOWNLOAD_DIR" | Out-Null
++Rename-Item -Path "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain" -NewName $MAVEN_HOME_NAME | Out-Null
++try {
++  Move-Item -Path "$TMP_DOWNLOAD_DIR/$MAVEN_HOME_NAME" -Destination $MAVEN_HOME_PARENT | Out-Null
++} catch {
++  if (! (Test-Path -Path "$MAVEN_HOME" -PathType Container)) {
++    Write-Error "fail to move MAVEN_HOME"
++  }
++} finally {
++  try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }
++  catch { Write-Warning "Cannot remove $TMP_DOWNLOAD_DIR" }
++}
++
++Write-Output "MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD"
+diff --git a/pom.xml b/pom.xml
+new file mode 100644
+index 0000000..673dc22
+--- /dev/null
++++ b/pom.xml
+@@ -0,0 +1,106 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project xmlns="http://maven.apache.org/POM/4.0.0" 
++         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
++         https://maven.apache.org/xsd/maven-4.0.0.xsd">
++
++    <modelVersion>4.0.0</modelVersion>
++
++    <parent>
++        <groupId>org.springframework.boot</groupId>
++        <artifactId>spring-boot-starter-parent</artifactId>
++        <version>3.5.3</version>
++        <relativePath/> <!-- lookup parent from repository -->
++    </parent>
++
++    <groupId>com.demo</groupId>
++    <artifactId>Simple-commerceapi</artifactId>
++    <version>0.0.1-SNAPSHOT</version>
++    <name>Simple-commerceapi</name>
++    <description>Springboot with mvc example</description>
++
++    <properties>
++        <java.version>17</java.version>
++    </properties>
++
++    <dependencies>
++        <!-- Spring Boot Starters -->
++        <dependency>
++            <groupId>org.springframework.boot</groupId>
++            <artifactId>spring-boot-starter-data-jpa</artifactId>
++        </dependency>
++        <dependency>
++            <groupId>org.springframework.boot</groupId>
++            <artifactId>spring-boot-starter-security</artifactId>
++        </dependency>
++        <dependency>
++            <groupId>org.springframework.boot</groupId>
++            <artifactId>spring-boot-starter-web</artifactId>
++        </dependency>
++
++        <!-- JWT for authentication -->
++        <dependency>
++            <groupId>io.jsonwebtoken</groupId>
++            <artifactId>jjwt</artifactId>
++            <version>0.9.1</version>
++        </dependency>
++
++        <!-- In-memory H2 database -->
++        <dependency>
++            <groupId>com.h2database</groupId>
++            <artifactId>h2</artifactId>
++            <scope>runtime</scope>
++        </dependency>
++
++        <!-- ✅ Lombok (Correct snippet added) -->
++        <dependency>
++            <groupId>org.projectlombok</groupId>
++            <artifactId>lombok</artifactId>
++            <version>1.18.30</version> <!-- Use the latest if needed -->
++            <scope>provided</scope>
++        </dependency>
++
++        <!-- Developer Tools -->
++        <dependency>
++            <groupId>org.springframework.boot</groupId>
++            <artifactId>spring-boot-devtools</artifactId>
++            <scope>runtime</scope>
++            <optional>true</optional>
++        </dependency>
++
++        <!-- MySQL Database -->
++        <dependency>
++            <groupId>com.mysql</groupId>
++            <artifactId>mysql-connector-j</artifactId>
++            <scope>runtime</scope>
++        </dependency>
++
++        <!-- Test Dependencies -->
++        <dependency>
++            <groupId>org.springframework.boot</groupId>
++            <artifactId>spring-boot-starter-test</artifactId>
++            <scope>test</scope>
++        </dependency>
++        <dependency>
++            <groupId>org.springframework.security</groupId>
++            <artifactId>spring-security-test</artifactId>
++            <scope>test</scope>
++        </dependency>
++
++        <!-- Remove or validate this dependency -->
++        <dependency>
++            <groupId>com.codegnan</groupId>
++            <artifactId>RestfulExample</artifactId>
++            <version>0.0.1-SNAPSHOT</version>
++        </dependency>
++    </dependencies>
++
++    <build>
++        <plugins>
++            <plugin>
++                <groupId>org.springframework.boot</groupId>
++                <artifactId>spring-boot-maven-plugin</artifactId>
++            </plugin>
++        </plugins>
++    </build>
++</project>
+diff --git a/src/main/java/com/demo/SimpleCommerceapiApplication.java b/src/main/java/com/demo/SimpleCommerceapiApplication.java
+new file mode 100644
+index 0000000..8afcc95
+--- /dev/null
++++ b/src/main/java/com/demo/SimpleCommerceapiApplication.java
+@@ -0,0 +1,13 @@
++package com.demo;
++
++import org.springframework.boot.SpringApplication;
++import org.springframework.boot.autoconfigure.SpringBootApplication;
++
++@SpringBootApplication
++public class SimpleCommerceapiApplication {
++
++	public static void main(String[] args) {
++		SpringApplication.run(SimpleCommerceapiApplication.class, args);
++	}
++
++}
+diff --git a/src/main/java/com/demo/controller/CartController.java b/src/main/java/com/demo/controller/CartController.java
+new file mode 100644
+index 0000000..f81ef46
+--- /dev/null
++++ b/src/main/java/com/demo/controller/CartController.java
+@@ -0,0 +1,45 @@
++package com.demo.controller;
++
++import com.demo.model.CartItem;
++import com.demo.service.CartService;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.security.core.Authentication;
++import org.springframework.web.bind.annotation.*;
++
++import java.util.List;
++
++@RestController
++@RequestMapping("/cart")
++public class CartController {
++
++    @Autowired
++    private CartService cartService;
++
++    @GetMapping
++    public List<CartItem> getCart(Authentication auth) {
++        return cartService.getCart(auth.getName());
++    }
++
++    @PostMapping("/add")
++    public CartItem add(@RequestParam Long productId,
++                        @RequestParam int quantity,
++                        Authentication auth) {
++        return cartService.addToCart(auth.getName(), productId, quantity);
++    }
++
++    @PutMapping("/update/{id}")
++    public CartItem update(@PathVariable Long id,
++                           @RequestParam int quantity) {
++        return cartService.updateCartItem(id, quantity);
++    }
++
++    @DeleteMapping("/remove/{id}")
++    public void remove(@PathVariable Long id) {
++        cartService.removeCartItem(id);
++    }
++
++    @DeleteMapping("/clear")
++    public void clear(Authentication auth) {
++        cartService.clearCart(auth.getName());
++    }
++}
+diff --git a/src/main/java/com/demo/controller/OrderController.java b/src/main/java/com/demo/controller/OrderController.java
+new file mode 100644
+index 0000000..c38b515
+--- /dev/null
++++ b/src/main/java/com/demo/controller/OrderController.java
+@@ -0,0 +1,5 @@
++package com.demo.controller;
++
++public class OrderController {
++
++}
+diff --git a/src/main/java/com/demo/controller/ProductController.java b/src/main/java/com/demo/controller/ProductController.java
+new file mode 100644
+index 0000000..f5b5a7e
+--- /dev/null
++++ b/src/main/java/com/demo/controller/ProductController.java
+@@ -0,0 +1,52 @@
++package com.demo.controller;
++
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.stereotype.Controller;
++import org.springframework.web.bind.annotation.DeleteMapping;
++import org.springframework.web.bind.annotation.GetMapping;
++import org.springframework.web.bind.annotation.PathVariable;
++import org.springframework.web.bind.annotation.PostMapping;
++import org.springframework.web.bind.annotation.PutMapping;
++import org.springframework.web.bind.annotation.RequestBody;
++import org.springframework.web.bind.annotation.RequestMapping;
++import org.springframework.web.bind.annotation.RequestParam;
++
++import com.demo.model.Product;
++import com.demo.service.ProductService;
++
++import java.util.List;
++@Controller
++@RequestMapping("/products")
++public class ProductController {
++		@Autowired
++		private ProductService service;
++		@GetMapping
++		public List<Product> getAllProducts(){
++			return service.getAllProducts();
++		}
++		@GetMapping("/{id}")
++	    public Product getProduct(@PathVariable Long id) {
++	        return service.getProductById(id);
++	    }
++		@GetMapping("/search")
++	    public List<Product> search(@RequestParam(required = false) String name,
++	                                @RequestParam(required = false) String category) {
++	        if (name != null) return service.searchByName(name);
++	        else if (category != null) return service.searchByName(category);
++	        else return service.getAllProducts();
++	    }
++		@PostMapping
++	    public Product addProduct(@RequestBody Product product) {
++	        return service.addProduct(product);
++	    }
++
++	    @PutMapping("/{id}")
++	    public Product updateProduct(@PathVariable Long id, @RequestBody Product product) {
++	        return service.updateProduct(id, product);
++	    }
++
++	    @DeleteMapping("/{id}")
++	    public void deleteProduct(@PathVariable Long id) {
++	        service.deleteProduct(id);
++	    }
++}
+diff --git a/src/main/java/com/demo/controller/UserController.java b/src/main/java/com/demo/controller/UserController.java
+new file mode 100644
+index 0000000..c5c150c
+--- /dev/null
++++ b/src/main/java/com/demo/controller/UserController.java
+@@ -0,0 +1,82 @@
++package com.demo.controller;
++
++import java.util.List;
++
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.stereotype.Controller;
++import org.springframework.ui.Model;
++import org.springframework.web.bind.annotation.GetMapping;
++import org.springframework.web.bind.annotation.ModelAttribute;
++import org.springframework.web.bind.annotation.PathVariable;
++import org.springframework.web.bind.annotation.PostMapping;
++import org.springframework.web.bind.annotation.RequestMapping;
++
++import com.demo.model.User;
++import com.demo.service.UserService;
++
++
++@Controller
++@RequestMapping("/users")
++public class UserController {
++	
++
++    private final UserService userService;
++
++    public UserController(UserService userService) {
++        this.userService = userService;
++    }
++
++    // Display list of users
++    @GetMapping
++    public String listUsers(Model model) {
++        List<User> users = userService.getAllUsers();
++        model.addAttribute("users", users);
++        return "user-list"; // JSP page to list users
++    }
++
++    // Show user creation form
++    @GetMapping("/create")
++    public String showCreateUserForm(Model model) {
++        model.addAttribute("user", new User()); // For binding form input
++        return "user-create"; // JSP page to create a new user
++    }
++
++   @PostMapping("/create")
++    public String createUser(@ModelAttribute User user, Model model) {
++        try {
++            // Delegate user creation to the service layer
++            userService.createUser(user.getUsername(), user.getPassword(), user.getRole(), user.getPhone_number());
++            return "redirect:/login"; // Redirect on success
++        } catch (RuntimeException e) {
++            // Handle the exception gracefully and return to the registration page
++            model.addAttribute("error", e.getMessage());
++            return "user-create";
++        }
++    }
++    
++    
++
++    
++
++    // Show user edit form
++    @GetMapping("/edit/{id}")
++    public String showEditUserForm(@PathVariable("id") int id, Model model) {
++        User user = userService.getUserById(id);
++        model.addAttribute("user", user); // Populate form with existing user data
++        return "user-edit"; // JSP page to edit the user
++    }
++
++    // Handle user update form submission
++    @PostMapping("/update/{id}")
++    public String updateUser(@PathVariable("id") int id, @ModelAttribute User user) {
++        userService.updateUser(id, user.getUsername(), user.getPassword(), user.getRole(),user.getPhone_number());
++        return "redirect:/users"; // After updating, redirect to user list
++    }
++
++    // Handle user deletion
++    @GetMapping("/delete/{id}")
++    public String deleteUser(@PathVariable("id") int id) {
++        userService.deleteUser(id);
++        return "redirect:/users"; // After deleting, redirect to user list
++    }
++}
+diff --git a/src/main/java/com/demo/dto/Authrequest.java b/src/main/java/com/demo/dto/Authrequest.java
+new file mode 100644
+index 0000000..3fdd88e
+--- /dev/null
++++ b/src/main/java/com/demo/dto/Authrequest.java
+@@ -0,0 +1,6 @@
++package com.demo.dto;
++
++public class Authrequest {
++	private String name;
++	private String password;
++}
+diff --git a/src/main/java/com/demo/dto/Authresponse.java b/src/main/java/com/demo/dto/Authresponse.java
+new file mode 100644
+index 0000000..5c04ba5
+--- /dev/null
++++ b/src/main/java/com/demo/dto/Authresponse.java
+@@ -0,0 +1,5 @@
++package com.demo.dto;
++
++public class Authresponse {
++	private String token;
++}
+diff --git a/src/main/java/com/demo/model/CartItem.java b/src/main/java/com/demo/model/CartItem.java
+new file mode 100644
+index 0000000..74a640a
+--- /dev/null
++++ b/src/main/java/com/demo/model/CartItem.java
+@@ -0,0 +1,34 @@
++package com.demo.model;
++
++import jakarta.persistence.*;
++import lombok.*;
++
++@Entity
++@Data
++@NoArgsConstructor
++@AllArgsConstructor
++@Builder
++public class CartItem {
++
++    @Id
++    @GeneratedValue(strategy = GenerationType.IDENTITY)
++    private Long id;
++
++    @ManyToOne
++    private User user;
++
++    @ManyToOne
++    private Product product;
++
++    private int quantity;
++
++	public Product getProduct() {
++		// TODO Auto-generated method stub
++		return product;
++	}
++
++	public int getQuantity() {
++		// TODO Auto-generated method stub
++		return quantity;
++	}
++}
+diff --git a/src/main/java/com/demo/model/Order.java b/src/main/java/com/demo/model/Order.java
+new file mode 100644
+index 0000000..66ed0e8
+--- /dev/null
++++ b/src/main/java/com/demo/model/Order.java
+@@ -0,0 +1,45 @@
++package com.demo.model;
++
++import jakarta.persistence.*;
++import lombok.Builder;
++import lombok.*;
++
++import java.time.LocalDateTime;
++import java.util.List;
++
++@Entity
++@Data
++@NoArgsConstructor
++@AllArgsConstructor
++@Builder
++@Table(name = "orders")
++public class Order {
++
++    @Id
++    @GeneratedValue(strategy = GenerationType.IDENTITY)
++    private Long id;
++
++    private LocalDateTime orderTime;
++
++    private double totalPrice;
++
++    @ManyToOne
++    private User user;
++
++    @OneToMany(cascade = CascadeType.ALL)
++    private List<CartItem> items;
++
++	public void setTotalAmount(double total) {
++		// TODO Auto-generated method stub
++		
++	}
++
++	public void setItems(List<Order> orderItems) {
++		// TODO Auto-generated method stub
++		
++	}
++
++
++	
++	
++}
+diff --git a/src/main/java/com/demo/model/Product.java b/src/main/java/com/demo/model/Product.java
+new file mode 100644
+index 0000000..c97ef25
+--- /dev/null
++++ b/src/main/java/com/demo/model/Product.java
+@@ -0,0 +1,31 @@
++package com.demo.model;
++
++import jakarta.persistence.*;
++import lombok.*;
++
++@Entity
++@Data
++@NoArgsConstructor
++@AllArgsConstructor
++@Builder
++public class Product {
++    
++    @Id
++    @GeneratedValue(strategy = GenerationType.IDENTITY)
++    private Long id;
++
++    private String name;
++
++    private String category;
++
++    private String description;
++
++    private double price;
++
++    private int stock;
++
++	public int getPrice() {
++		// TODO Auto-generated method stub
++		return 0;
++	}
++}
+diff --git a/src/main/java/com/demo/model/Role.java b/src/main/java/com/demo/model/Role.java
+new file mode 100644
+index 0000000..4439949
+--- /dev/null
++++ b/src/main/java/com/demo/model/Role.java
+@@ -0,0 +1,6 @@
++package com.demo.model;
++
++public enum Role {
++	customer,
++	admin
++}
+diff --git a/src/main/java/com/demo/model/User.java b/src/main/java/com/demo/model/User.java
+new file mode 100644
+index 0000000..de71333
+--- /dev/null
++++ b/src/main/java/com/demo/model/User.java
+@@ -0,0 +1,41 @@
++package com.demo.model;
++
++import javax.management.relation.Role;
++
++import jakarta.persistence.Entity;
++import jakarta.persistence.GeneratedValue;
++import jakarta.persistence.GenerationType;
++import jakarta.persistence.Id;
++
++@Entity
++
++public class User {
++	@Id
++	@GeneratedValue(strategy = GenerationType.IDENTITY)
++	private Long id;
++	private String username;
++	private String password;
++	private Role role;
++	public Object getUsername() {
++		// TODO Auto-generated method stub
++		return null;
++	}
++	public Object getPassword() {
++		// TODO Auto-generated method stub
++		return null;
++	}
++	public Object getRole() {
++		// TODO Auto-generated method stub
++		return null;
++	}
++	public Object getPhone_number() {
++		// TODO Auto-generated method stub
++		return null;
++	}
++	public User orElseThrow() {
++		// TODO Auto-generated method stub
++		return null;
++	}
++	
++
++}
+diff --git a/src/main/java/com/demo/repositories/CartRepository.java b/src/main/java/com/demo/repositories/CartRepository.java
+new file mode 100644
+index 0000000..619f418
+--- /dev/null
++++ b/src/main/java/com/demo/repositories/CartRepository.java
+@@ -0,0 +1,12 @@
++package com.demo.repositories;
++
++import com.demo.model.CartItem;
++import com.demo.model.User;
++import org.springframework.data.jpa.repository.JpaRepository;
++
++import java.util.List;
++
++public interface CartRepository extends JpaRepository<CartItem, Long> {
++    List<CartItem> findByUser(User user);
++    void deleteByUser(User user);
++}
+diff --git a/src/main/java/com/demo/repositories/OrderRepository.java b/src/main/java/com/demo/repositories/OrderRepository.java
+new file mode 100644
+index 0000000..4453ef3
+--- /dev/null
++++ b/src/main/java/com/demo/repositories/OrderRepository.java
+@@ -0,0 +1,11 @@
++package com.demo.repositories;
++
++import com.demo.model.Order;
++import com.demo.model.User;
++import org.springframework.data.jpa.repository.JpaRepository;
++
++import java.util.List;
++
++public interface OrderRepository extends JpaRepository<Order, Long> {
++    List<Order> findByUser(User user);
++}
+diff --git a/src/main/java/com/demo/repositories/UserRepository.java b/src/main/java/com/demo/repositories/UserRepository.java
+new file mode 100644
+index 0000000..f51d60d
+--- /dev/null
++++ b/src/main/java/com/demo/repositories/UserRepository.java
+@@ -0,0 +1,9 @@
++package com.demo.repositories;
++
++import com.demo.model.User;
++import org.springframework.data.jpa.repository.JpaRepository;
++
++public interface UserRepository extends JpaRepository<User, Long> {
++	User findByUsername(String username);
++	}
++
+diff --git a/src/main/java/com/demo/service/CartService.java b/src/main/java/com/demo/service/CartService.java
+new file mode 100644
+index 0000000..5db282e
+--- /dev/null
++++ b/src/main/java/com/demo/service/CartService.java
+@@ -0,0 +1,34 @@
++package com.demo.service;
++
++import java.util.List;
++
++import com.demo.model.CartItem;
++
++public class CartService {
++
++	public List<CartItem> getCart(String name) {
++		// TODO Auto-generated method stub
++		return null;
++	}
++
++	public CartItem addToCart(String name, Long productId, int quantity) {
++		// TODO Auto-generated method stub
++		return null;
++	}
++
++	public CartItem updateCartItem(Long id, int quantity) {
++		// TODO Auto-generated method stub
++		return null;
++	}
++
++	public void removeCartItem(Long id) {
++		// TODO Auto-generated method stub
++		
++	}
++
++	public void clearCart(String name) {
++		// TODO Auto-generated method stub
++		
++	}
++
++}
+diff --git a/src/main/java/com/demo/service/Customeruserdetails.java b/src/main/java/com/demo/service/Customeruserdetails.java
+new file mode 100644
+index 0000000..46eadcb
+--- /dev/null
++++ b/src/main/java/com/demo/service/Customeruserdetails.java
+@@ -0,0 +1,39 @@
++package com.demo.service;
++
++import com.demo.model.User;
++import com.demo.repositories.UserRepository;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.security.core.GrantedAuthority;
++import org.springframework.security.core.userdetails.*;
++import org.springframework.stereotype.Service;
++
++import java.util.Collection;
++import java.util.Collections;
++
++@Service
++public class Customeruserdetails implements UserDetails{
++
++	@Override
++	public Collection<? extends GrantedAuthority> getAuthorities() {
++		// TODO Auto-generated method stub
++		return null;
++	}
++
++	@Override
++	public String getPassword() {
++		// TODO Auto-generated method stub
++		return null;
++	}
++
++	@Override
++	public String getUsername() {
++		// TODO Auto-generated method stub
++		return null;
++	}
++
++	public Object loadUserByUsername(String username) {
++		// TODO Auto-generated method stub
++		return null;
++	}
++
++}
+diff --git a/src/main/java/com/demo/service/OrderService.java b/src/main/java/com/demo/service/OrderService.java
+new file mode 100644
+index 0000000..1d258dc
+--- /dev/null
++++ b/src/main/java/com/demo/service/OrderService.java
+@@ -0,0 +1,62 @@
++package com.demo.service;
++
++import java.time.LocalDateTime;
++import java.util.ArrayList;
++import java.util.Date;
++import java.util.List;
++
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.stereotype.Service;
++
++import com.demo.model.CartItem;
++import com.demo.model.Order;
++import com.demo.model.User;
++import com.demo.repositories.CartRepository;
++import com.demo.repositories.OrderRepository;
++import com.demo.repositories.UserRepository;
++
++@Service
++public class OrderService {
++
++    @Autowired
++    private OrderRepository orderRepo;
++
++    @Autowired
++    private CartRepository cartRepo;
++
++    @Autowired
++    private UserRepository userRepo;
++
++    public Order placeOrder(String username) {
++        UserRepository userRepository = null;
++		User user = userRepository.findByUsername(username).orElseThrow();
++        CartRepository cartRepository = null;
++		List<CartItem> cartItems = cartRepository.findByUser(user);
++
++        double total = 0;
++        List<Order> orderItems = new ArrayList<>();
++
++        Order order = new Order();
++        orderRepo.save(order);
++
++        for (CartItem cartItem : cartItems) {
++            double itemTotal = cartItem.getProduct().getPrice() * cartItem.getQuantity();
++            total += itemTotal;
++            Order orderItem = new Order();
++            orderItems.add(orderItem);
++        }
++
++        order.setTotalAmount(total);
++        order.setItems(orderItems);
++        orderRepo.save(order);
++        cartRepo.deleteByUser(user);
++
++        return order;
++    }
++
++    public List<Order> getOrders(String username) {
++        User user = userRepo.findByUsername(username).orElseThrow();
++        return orderRepo.findByUser(user);
++
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/java/com/demo/service/ProductService.java b/src/main/java/com/demo/service/ProductService.java
+new file mode 100644
+index 0000000..e416bd9
+--- /dev/null
++++ b/src/main/java/com/demo/service/ProductService.java
+@@ -0,0 +1,42 @@
++package com.demo.service;
++
++import java.util.List;
++
++import org.hibernate.query.Page;
++import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
++import org.springframework.web.multipart.MultipartFile;
++
++import com.demo.model.Product;
++
++public abstract  class ProductService {
++
++	 public abstract List<Product> getAllProducts();
++
++    public abstract Product getProductById(Long id);
++
++    abstract void saveProduct(Product product);
++
++    public abstract Product deleteProduct(Long id);
++    public abstract String saveProductImage(MultipartFile imageFile);
++
++	
++    public abstract Page getPaginatedProducts(Pageable pageable);
++
++  
++    
++    public Page getPaginatedActiveProducts(Pageable pageable) {
++		return null;
++	}
++
++	public List<Product> searchByName(String name) {
++		// TODO Auto-generated method stub
++		return null;
++	}
++
++	public abstract Product updateProduct(Long id, Product product);
++
++	public abstract Product addProduct(Product product);
++}
++
++
++
+diff --git a/src/main/java/com/demo/service/UserService.java b/src/main/java/com/demo/service/UserService.java
+new file mode 100644
+index 0000000..e8f000c
+--- /dev/null
++++ b/src/main/java/com/demo/service/UserService.java
+@@ -0,0 +1,34 @@
++package com.demo.service;
++
++import java.util.List;
++
++import com.demo.model.User;
++
++public class UserService {
++
++	public List<User> getAllUsers() {
++		// TODO Auto-generated method stub
++		return null;
++	}
++
++	public void createUser(Object username, Object password, Object role, Object phone_number) {
++		// TODO Auto-generated method stub
++		
++	}
++
++	public User getUserById(int id) {
++		// TODO Auto-generated method stub
++		return null;
++	}
++
++	public void updateUser(int id, Object username, Object password, Object role, Object phone_number) {
++		// TODO Auto-generated method stub
++		
++	}
++
++	public void deleteUser(int id) {
++		// TODO Auto-generated method stub
++		
++	}
++
++}
+diff --git a/src/main/java/com/demo/util/JwtFilter.java b/src/main/java/com/demo/util/JwtFilter.java
+new file mode 100644
+index 0000000..e257498
+--- /dev/null
++++ b/src/main/java/com/demo/util/JwtFilter.java
+@@ -0,0 +1,42 @@
++package com.demo.util;
++
++import com.demo.service.Customeruserdetails;
++import jakarta.servlet.*;
++import jakarta.servlet.http.HttpServletRequest;
++import jakarta.servlet.http.HttpServletResponse;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
++import org.springframework.security.core.context.SecurityContextHolder;
++import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
++import org.springframework.stereotype.Component;
++
++import java.io.IOException;
++
++@Component
++public class JwtFilter implements Filter {
++
++    @Autowired
++    private JwtUtil jwtUtil;
++
++    @Autowired
++    private Customeruserdetails userDetailsService;
++
++    @Override
++    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
++            throws IOException, ServletException {
++        HttpServletRequest request = (HttpServletRequest) req;
++        String header = request.getHeader("Authorization");
++
++        if (header != null && header.startsWith("Bearer ")) {
++            String token = header.substring(7);
++            if (jwtUtil.validateToken(token)) {
++                String username = jwtUtil.extractUsername(token);
++                var userDetails = userDetailsService.loadUserByUsername(username);
++                var auth = new UsernamePasswordAuthenticationToken(userDetails, null, ((Customeruserdetails) userDetails).getAuthorities());
++                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
++                SecurityContextHolder.getContext().setAuthentication(auth);
++            }
++        }
++        chain.doFilter(req, res);
++    }
++}
+diff --git a/src/main/java/com/demo/util/JwtUtil.java b/src/main/java/com/demo/util/JwtUtil.java
+new file mode 100644
+index 0000000..dda1feb
+--- /dev/null
++++ b/src/main/java/com/demo/util/JwtUtil.java
+@@ -0,0 +1,33 @@
++package com.demo.util;
++
++import io.jsonwebtoken.*;
++import org.springframework.stereotype.Component;
++import java.util.Date;
++
++@Component
++public class JwtUtil {
++
++    private final String SECRET_KEY = "mysecretkey";
++
++    public String generateToken(String username) {
++        return Jwts.builder()
++                .setSubject(username)
++                .setIssuedAt(new Date())
++                .setExpiration(new Date(System.currentTimeMillis() + 86400000))  // 1 day
++                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
++                .compact();
++    }
++
++    public String extractUsername(String token) {
++        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody().getSubject();
++    }
++
++    public boolean validateToken(String token) {
++        try {
++            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
++            return true;
++        } catch (Exception e) {
++            return false;
++        }
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/java/com/demo/util/SecurityConfiguration.java b/src/main/java/com/demo/util/SecurityConfiguration.java
+new file mode 100644
+index 0000000..f981bfe
+--- /dev/null
++++ b/src/main/java/com/demo/util/SecurityConfiguration.java
+@@ -0,0 +1,52 @@
++package com.demo.util;
++
++import com.demo.service.Customeruserdetails;
++import jakarta.servlet.Filter;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.context.annotation.Bean;
++import org.springframework.context.annotation.Configuration;
++import org.springframework.security.authentication.AuthenticationManager;
++import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
++import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
++import org.springframework.security.config.annotation.web.builders.HttpSecurity;
++import org.springframework.security.core.userdetails.UserDetailsService;
++import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
++import org.springframework.security.web.SecurityFilterChain;
++
++@Configuration
++public class SecurityConfiguration {
++	@Autowired
++    private UserDetailsService userDetailsService;
++	@Autowired
++    private JwtFilter jwtFilter;
++
++    @Bean
++    public BCryptPasswordEncoder encoder() {
++        return new BCryptPasswordEncoder();
++    }
++
++    @Bean
++    public DaoAuthenticationProvider provider() {
++        @SuppressWarnings("deprecation")
++		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
++        provider.setUserDetailsService(userDetailsService);
++        provider.setPasswordEncoder(encoder());
++        return provider;
++    }
++
++    @Bean
++    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
++        http.csrf(csrf -> csrf.disable())
++            .authorizeHttpRequests(auth -> auth
++                .requestMatchers("/auth/**").permitAll()
++                .anyRequest().authenticated())
++            .authenticationProvider(provider())
++            .addFilterBefore(jwtFilter, (Class<? extends Filter>) null);
++        return http.build();
++    }
++
++    @Bean
++    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
++        return config.getAuthenticationManager();
++    }
++}
+diff --git a/src/main/resources/application.properties b/src/main/resources/application.properties
+new file mode 100644
+index 0000000..f8a92dc
+--- /dev/null
++++ b/src/main/resources/application.properties
+@@ -0,0 +1 @@
++spring.application.name=Simple-commerceapi
+diff --git a/src/test/java/com/demo/SimpleCommerceapiApplicationTests.java b/src/test/java/com/demo/SimpleCommerceapiApplicationTests.java
+new file mode 100644
+index 0000000..11b54a5
+--- /dev/null
++++ b/src/test/java/com/demo/SimpleCommerceapiApplicationTests.java
+@@ -0,0 +1,13 @@
++package com.demo;
++
++import org.junit.jupiter.api.Test;
++import org.springframework.boot.test.context.SpringBootTest;
++
++@SpringBootTest
++class SimpleCommerceapiApplicationTests {
++
++	@Test
++	void contextLoads() {
++	}
++
++}
